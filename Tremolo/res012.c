@@ -153,7 +153,7 @@ int res_inverse(vorbis_dsp_state *vd,vorbis_info_residue *info,
                    always being at most six bits */
                 for(k=0;k<partitions_per_word;k++){
                   ogg_uint32_t div=partword[j][i+k];
-                  partword[j][i+k]=temp/div;
+                  partword[j][i+k]= (div == 0) ? 0 : (temp / div);
                   temp-=partword[j][i+k]*div;
                 }
 
@@ -202,39 +202,41 @@ int res_inverse(vorbis_dsp_state *vd,vorbis_info_residue *info,
       samples_per_partition/=ch;
 
       for(s=0;s<info->stages;s++){
-	for(i=0;i<partvals;){
+        for(i=0;i<partvals;){
 
-	  if(s==0){
-	    int temp;
-	    partword[i+partitions_per_word-1]=1;
-	    for(k=partitions_per_word-2;k>=0;k--)
-	      partword[i+k]=partword[i+k+1]*info->partitions;
+          if(s==0){
+            int temp;
+            partword[i+partitions_per_word-1]=1;
+            for(k=partitions_per_word-2;k>=0;k--)
+              partword[i+k]=partword[i+k+1]*info->partitions;
 
-	    /* fetch the partition word */
-	    temp=vorbis_book_decode(phrasebook,&vd->opb);
-	    if(temp==-1)goto eopbreak;
+            /* fetch the partition word */
+            temp=vorbis_book_decode(phrasebook,&vd->opb);
+            if(temp==-1)goto eopbreak;
 
-	    /* this can be done quickly in assembly due to the quotient
-	       always being at most six bits */
-	    for(k=0;k<partitions_per_word;k++){
-	      ogg_uint32_t div=partword[i+k];
-	      partword[i+k]=temp/div;
-	      temp-=partword[i+k]*div;
-	    }
-	  }
+            /* this can be done quickly in assembly due to the quotient
+               always being at most six bits */
+            for(k=0;k<partitions_per_word;k++){
+              ogg_uint32_t div=partword[i+k];
+              partword[i+k]= (div == 0) ? 0 : (temp / div);
+              temp-=partword[i+k]*div;
+            }
+          }
 
-	  /* now we decode residual values for the partitions */
-	  for(k=0;k<partitions_per_word && i<partvals;k++,i++)
-	    if(info->stagemasks[(int)partword[i]]&(1<<s)){
-	      codebook *stagebook=ci->book_param+
-		info->stagebooks[(partword[i]<<3)+s];
-	      if(vorbis_book_decodevv_add(stagebook,in,
-					  i*samples_per_partition+beginoff,ch,
-					  &vd->opb,
-					  samples_per_partition,-8)==-1)
-		goto eopbreak;
-	    }
-	}
+          /* now we decode residual values for the partitions */
+          for(k=0;k<partitions_per_word && i<partvals;k++,i++){
+              if(partword[i] >= 0 && partword[i] < info->partitions &&
+                      (info->stagemasks[(int)partword[i]] & (1 << s))){
+                  codebook *stagebook=ci->book_param+
+                          info->stagebooks[(partword[i]<<3)+s];
+                  if(vorbis_book_decodevv_add(stagebook,in,
+                              i*samples_per_partition+beginoff,ch,
+                              &vd->opb,
+                              samples_per_partition,-8)==-1)
+                      goto eopbreak;
+              }
+          }
+        }
       }
     }
   }
@@ -242,4 +244,3 @@ int res_inverse(vorbis_dsp_state *vd,vorbis_info_residue *info,
 
   return 0;
 }
-
