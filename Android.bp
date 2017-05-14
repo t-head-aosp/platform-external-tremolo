@@ -51,6 +51,7 @@ cc_library_shared {
     cflags: [
         "-O2",
         "-D_GNU_SOURCE",
+        "-funsigned-char",
     ],
 
     local_include_dirs: ["Tremolo"],
