@@ -65,9 +65,9 @@ int res_unpack(vorbis_info_residue *info,
   if(info->type>2 || info->type<0)goto errout;
   info->begin=oggpack_read(opb,24);
   info->end=oggpack_read(opb,24);
-  info->grouping=oggpack_read(opb,24)+1;
-  info->partitions=(char)(oggpack_read(opb,6)+1);
-  info->groupbook=(unsigned char)oggpack_read(opb,8);
+  info->grouping=oggpack_read(opb,24)+1;              // "partition size" in spec
+  info->partitions=(char)(oggpack_read(opb,6)+1);     // "classification" in spec
+  info->groupbook=(unsigned char)oggpack_read(opb,8); // "classbook" in spec
   if(info->groupbook>=ci->books)goto errout;
 
   info->stagemasks=_ogg_malloc(info->partitions*sizeof(*info->stagemasks));
@@ -94,6 +94,15 @@ int res_unpack(vorbis_info_residue *info,
 
   if(oggpack_eop(opb))goto errout;
 
+  // According to the Vorbis spec (paragraph 8.6.2 "packet decode"), residue
+  // begin and end should be limited to the maximum possible vector size in
+  // case they exceed it. However doing that makes the decoder crash further
+  // down, so we return an error instead.
+  int limit = (info->type == 2 ? vi->channels : 1) * ci->blocksizes[1] / 2;
+  if (info->begin > info->end ||
+          info->end > limit) {
+      goto errout;
+  }
   return 0;
  errout:
   res_clear_info(info);
