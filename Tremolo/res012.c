@@ -126,10 +126,13 @@ int res_inverse(vorbis_dsp_state *vd,vorbis_info_residue *info,
 
       if(used){
 
-        char **partword=(char **)alloca(ch*sizeof(*partword));
-        for(j=0;j<ch;j++)
-          partword[j]=(char *)alloca(partwords*partitions_per_word*
-                                     sizeof(*partword[j]));
+        char **partword=(char **)_ogg_calloc(ch,sizeof(*partword));
+        if(partword==NULL)goto cleanup1;
+        for(j=0;j<ch;j++){
+          partword[j]=(char *)_ogg_malloc(partwords*partitions_per_word*
+                                          sizeof(*partword[j]));
+          if(partword[j]==NULL)goto cleanup1;
+        }
 
         for(s=0;s<info->stages;s++){
 
@@ -147,7 +150,7 @@ int res_inverse(vorbis_dsp_state *vd,vorbis_info_residue *info,
 
               for(j=0;j<ch;j++){
                 int temp=vorbis_book_decode(phrasebook,&vd->opb);
-                if(temp==-1)goto eopbreak;
+                if(temp==-1)goto cleanup1;
 
                 /* this can be done quickly in assembly due to the quotient
                    always being at most six bits */
@@ -171,15 +174,22 @@ int res_inverse(vorbis_dsp_state *vd,vorbis_info_residue *info,
                   if(info->type){
                     if(vorbis_book_decodev_add(stagebook,in[j]+offset,&vd->opb,
                                                samples_per_partition,-8)==-1)
-                      goto eopbreak;
+                      goto cleanup1;
                   }else{
                     if(vorbis_book_decodevs_add(stagebook,in[j]+offset,&vd->opb,
                                                 samples_per_partition,-8)==-1)
-                      goto eopbreak;
+                      goto cleanup1;
                   }
                 }
               }
           }
+        }
+ cleanup1:
+        if(partword){
+          for(j=0;j<ch;j++){
+            if(partword[j])_ogg_free(partword[j]);
+          }
+          _ogg_free(partword);
         }
       }
     }
@@ -193,11 +203,12 @@ int res_inverse(vorbis_dsp_state *vd,vorbis_info_residue *info,
       int partwords=(partvals+partitions_per_word-1)/partitions_per_word;
 
       char *partword=
-        (char *)alloca(partwords*partitions_per_word*sizeof(*partword));
+        (char *)_ogg_malloc(partwords*partitions_per_word*sizeof(*partword));
+      if(partword==NULL)goto cleanup2;
       int beginoff=info->begin/ch;
 
       for(i=0;i<ch;i++)if(nonzero[i])break;
-      if(i==ch)return(0); /* no nonzero vectors */
+      if(i==ch)goto cleanup2; /* no nonzero vectors */
 
       samples_per_partition/=ch;
 
@@ -212,7 +223,7 @@ int res_inverse(vorbis_dsp_state *vd,vorbis_info_residue *info,
 
             /* fetch the partition word */
             temp=vorbis_book_decode(phrasebook,&vd->opb);
-            if(temp==-1)goto eopbreak;
+            if(temp==-1)goto cleanup2;
 
             /* this can be done quickly in assembly due to the quotient
                always being at most six bits */
@@ -233,14 +244,15 @@ int res_inverse(vorbis_dsp_state *vd,vorbis_info_residue *info,
                               i*samples_per_partition+beginoff,ch,
                               &vd->opb,
                               samples_per_partition,-8)==-1)
-                      goto eopbreak;
+                      goto cleanup2;
               }
           }
         }
       }
+ cleanup2:
+      if(partword)_ogg_free(partword);
     }
   }
- eopbreak:
 
   return 0;
 }
