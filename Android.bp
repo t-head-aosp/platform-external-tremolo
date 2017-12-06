@@ -1,5 +1,9 @@
 cc_library_shared {
     name: "libvorbisidec",
+    vendor_available: true,
+    vndk: {
+        enabled: true,
+    },
 
     srcs: [
         "Tremolo/bitwise.c",
