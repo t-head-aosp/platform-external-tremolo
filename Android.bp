@@ -72,6 +72,7 @@ cc_library {
         diag: {
             integer_overflow: true,
             misc_undefined: ["bounds"],
+            no_recover: ["bounds", "integer"],
         },
     },
 }
