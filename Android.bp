@@ -69,6 +69,12 @@ cc_library {
     sanitize: {
         integer_overflow: true,
         misc_undefined: ["bounds"],
+        // Ugly hack warning.
+        // Disable hwasan on this target to force a dependency on
+        // libclang_rt.ubsan_standalone in at least one apex-free
+        // library.
+        // b/122378459
+        hwaddress: false,
         diag: {
             integer_overflow: true,
             misc_undefined: ["bounds"],
