@@ -75,10 +75,5 @@ cc_library {
         // library.
         // b/122378459
         hwaddress: false,
-        diag: {
-            integer_overflow: true,
-            misc_undefined: ["bounds"],
-            no_recover: ["bounds", "integer"],
-        },
     },
 }
