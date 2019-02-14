@@ -376,14 +376,21 @@ long _book_maptype1_quantvals(codebook *b){
     long acc=1;
     long acc1=1;
     int i;
-    for(i=0;i<b->dim;i++){
-      acc*=vals;
-      acc1*=vals+1;
+    for (i = 0; i < b->dim; i++) {
+      if (acc > b->entries / vals) {
+          break;
+      }
+      acc *= vals;
+      if (acc1 > LONG_MAX / (vals + 1)) {
+        acc1 = LONG_MAX;
+      } else {
+        acc1 *= (vals + 1);
+      }
     }
-    if(acc<=b->entries && acc1>b->entries){
+    if (i >= b->dim && acc <= b->entries && acc1 > b->entries) {
       return(vals);
     }else{
-      if(acc>b->entries){
+      if (i < b->dim || acc > b->entries) {
         vals--;
       }else{
         vals++;
