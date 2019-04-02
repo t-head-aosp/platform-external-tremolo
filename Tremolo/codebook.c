@@ -825,12 +825,21 @@ static int decode_map(codebook *s, oggpack_buffer *b, ogg_int32_t *v, int point)
     }
     add <<= shiftM;
 
-    for(i=0;i<s->dim;i++)
-      v[i]= ((add + v[i] * mul) >> shiftM);
+    ogg_int32_t tmp;
+    for(i=0;i<s->dim;i++) {
+      if (__builtin_mul_overflow(v[i], mul, &tmp) ||
+              __builtin_add_overflow(tmp, add, &tmp)) {
+          return -1;
+      }
+      v[i] = tmp >> shiftM;
+    }
 
     if(s->q_seq)
-      for(i=1;i<s->dim;i++)
-        v[i]+=v[i-1];
+      for(i=1;i<s->dim;i++) {
+        if (__builtin_add_overflow(v[i], v[i-1], &v[i])) {
+          return -1;
+        }
+      }
   }
 
   return 0;
