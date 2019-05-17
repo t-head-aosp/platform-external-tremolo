@@ -1,9 +1,6 @@
 cc_library {
     name: "libvorbisidec",
     vendor_available: true,
-    vndk: {
-        enabled: true,
-    },
 
     srcs: [
         "Tremolo/bitwise.c",
