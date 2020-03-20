@@ -35,12 +35,6 @@ cc_library {
         arm64: {
             cflags: ["-DONLY_C"],
         },
-        mips: {
-            cflags: ["-DONLY_C"],
-        },
-        mips64: {
-            cflags: ["-DONLY_C"],
-        },
         x86: {
             cflags: ["-DONLY_C"],
         },
