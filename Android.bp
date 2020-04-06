@@ -1,6 +1,7 @@
 cc_library {
     name: "libvorbisidec",
     vendor_available: true,
+    host_supported: true,
 
     srcs: [
         "Tremolo/bitwise.c",
@@ -60,5 +61,11 @@ cc_library {
     sanitize: {
         integer_overflow: true,
         misc_undefined: ["bounds"],
+    },
+
+    target: {
+        darwin: {
+            enabled: false,
+        },
     },
 }
