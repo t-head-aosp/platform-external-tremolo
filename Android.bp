@@ -68,4 +68,5 @@ cc_library {
             enabled: false,
         },
     },
+    min_sdk_version: "29",
 }
