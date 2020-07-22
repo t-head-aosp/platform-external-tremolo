@@ -94,6 +94,8 @@ void Codec::decodeFrames(const uint8_t *data, size_t size) {
         /* skip kVorbisHeaderlength <type + "vorbis"> bytes */
         makeBitReader(data + kVorbisHeaderlength, size - kVorbisHeaderlength, &buf, &ref, &bits);
         if (data[0] == 1) {
+          // release any memory that vorbis_info_init will blindly overwrite
+          vorbis_info_clear(mVi);
           vorbis_info_init(mVi);
           if (0 != _vorbis_unpack_info(mVi, &bits)) {
             return;
@@ -106,6 +108,8 @@ void Codec::decodeFrames(const uint8_t *data, size_t size) {
           if (0 != _vorbis_unpack_books(mVi, &bits)) {
             return;
           }
+          // release any memory that vorbis_dsp_init will blindly overwrite
+          vorbis_dsp_clear(mState);
           if (0 != vorbis_dsp_init(mState, mVi)) {
             return;
           }
