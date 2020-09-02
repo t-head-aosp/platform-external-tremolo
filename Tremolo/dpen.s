@@ -40,6 +40,12 @@
 	.global vorbis_book_decodevv_add
 	.global _checksum
 
+	.type decode_packed_entry_number, %function
+	.type decode_packed_entry_number_REALSTART, %function
+	.type decode_map, %function
+	.type vorbis_book_decodevv_add, %function
+	.type _checksum, %function
+
 	.extern	oggpack_adv
 	.extern	oggpack_look
 	.extern	oggpack_eop
