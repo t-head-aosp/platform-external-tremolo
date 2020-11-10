@@ -1,0 +1,31 @@
+cc_test {
+    name: "VorbisDecoderTest",
+    gtest: true,
+    test_suites: ["device-tests"],
+
+    srcs: [
+        "VorbisDecoderTest.cpp",
+    ],
+
+    shared_libs: [
+        "libutils",
+        "liblog",
+    ],
+
+    static_libs: [
+        "libvorbisidec",
+    ],
+
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+
+    sanitize: {
+        misc_undefined: [
+            "unsigned-integer-overflow",
+            "signed-integer-overflow",
+        ],
+        cfi: true,
+    },
+}
