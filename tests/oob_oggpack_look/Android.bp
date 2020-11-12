@@ -22,13 +22,6 @@ cc_test {
         "-Werror",
     ],
 
-    // Assembly is only written for ARM and cannot interop with Thumb.
-    arch: {
-        arm: {
-            instruction_set: "arm",
-        },
-    },
-
     sanitize: {
         integer_overflow: true,
         misc_undefined: ["bounds"],
