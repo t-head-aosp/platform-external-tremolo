@@ -1,15 +1,10 @@
 cc_test {
-    name: "oob_oggpack_look",
+    name: "VorbisDecoderTest",
     gtest: true,
     test_suites: ["device-tests"],
 
-    srcs: ["test_floor0.cpp"],
-
-    // compile_multilib: "64",
-
-    static_libs: [
-        "libvorbisidec",
-        "liblog",
+    srcs: [
+        "VorbisDecoderTest.cpp",
     ],
 
     shared_libs: [
@@ -17,18 +12,20 @@ cc_test {
         "liblog",
     ],
 
+    static_libs: [
+        "libvorbisidec",
+    ],
+
     cflags: [
-        "-Wall",
         "-Werror",
+        "-Wall",
     ],
 
     sanitize: {
-        integer_overflow: true,
-        misc_undefined: ["bounds"],
-        diag: {
-            integer_overflow: true,
-            undefined: true,
-            misc_undefined: ["bounds"],
-        },
+        misc_undefined: [
+            "unsigned-integer-overflow",
+            "signed-integer-overflow",
+        ],
+        cfi: true,
     },
 }
