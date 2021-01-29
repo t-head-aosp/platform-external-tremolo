@@ -1,15 +1,10 @@
 cc_test {
-    name: "oob_oggpack_look",
+    name: "VorbisDecoderTest",
     gtest: true,
     test_suites: ["device-tests"],
 
-    srcs: ["test_floor0.cpp"],
-
-    // compile_multilib: "64",
-
-    static_libs: [
-        "libvorbisidec",
-        "liblog",
+    srcs: [
+        "VorbisDecoderTest.cpp",
     ],
 
     shared_libs: [
@@ -17,18 +12,27 @@ cc_test {
         "liblog",
     ],
 
-    cflags: [
-        "-Wall",
-        "-Werror",
+    static_libs: [
+        "libvorbisidec",
     ],
 
-    sanitize: {
-        integer_overflow: true,
-        misc_undefined: ["bounds"],
-        diag: {
-            integer_overflow: true,
-            undefined: true,
-            misc_undefined: ["bounds"],
+    cflags: [
+        "-Werror",
+        "-Wall",
+    ],
+
+    // Assembly is only written for ARM and cannot interop with Thumb.
+    arch: {
+        arm: {
+            instruction_set: "arm",
         },
+    },
+
+    sanitize: {
+        misc_undefined: [
+            "unsigned-integer-overflow",
+            "signed-integer-overflow",
+        ],
+        cfi: true,
     },
 }
