@@ -21,6 +21,13 @@ cc_test {
         "-Wall",
     ],
 
+    // Assembly is only written for ARM and cannot interop with Thumb.
+    arch: {
+        arm: {
+            instruction_set: "arm",
+        },
+    },
+
     sanitize: {
         misc_undefined: [
             "unsigned-integer-overflow",
