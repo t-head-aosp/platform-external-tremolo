@@ -143,7 +143,7 @@ m1_loop:
 	BLT	duff
 
 	CMP	r8, r7			@ if bit==0 (chase+bit==chase) (sets C)
-	LDRNEB	r14,[r6, r7]		@ r14= t[chase]
+	LDRBNE	r14,[r6, r7]		@ r14= t[chase]
 	MOVEQ	r14,#128
 	ADC	r12,r8, r6		@ r12= chase+bit+1+t
 	LDRB	r14,[r12,r14,LSR #7]	@ r14= t[chase+bit+1+(!bit || t[chase]0x0x80)]
@@ -202,7 +202,7 @@ m3_loop:
 
 	MOV	r7, r7, LSL #1
 	CMP	r8, r7			@ if bit==0 (chase+bit==chase) sets C
-	LDRNEH	r14,[r6, r7]		@ r14= t[chase]
+	LDRHNE	r14,[r6, r7]		@ r14= t[chase]
 	MOVEQ	r14,#0x8000
 	ADC	r12,r8, r14,LSR #15	@ r12= 1+((chase+bit)<<1)+(!bit || t[chase]0x0x8000)
 	ADC	r12,r12,r14,LSR #15	@ r12= t + (1+chase+bit+(!bit || t[chase]0x0x8000))<<1
