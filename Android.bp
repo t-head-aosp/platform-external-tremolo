@@ -51,17 +51,14 @@ cc_library {
 
     arch: {
         arm: {
+            cflags: ["-D_ARM_ASSEM_"],
+            instruction_set: "arm",
             srcs: [
                 "Tremolo/bitwiseARM.s",
                 "Tremolo/dpen.s",
                 "Tremolo/floor1ARM.s",
                 "Tremolo/mdctARM.s",
             ],
-            cflags: ["-D_ARM_ASSEM_"],
-            // Assembly code in asm_arm.h does not compile with Clang.
-            clang_asflags: ["-no-integrated-as"],
-
-            instruction_set: "arm",
         },
         arm64: {
             cflags: ["-DONLY_C"],
