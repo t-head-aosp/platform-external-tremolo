@@ -55,6 +55,14 @@
 	.hidden	sincos_lookup0
 	.hidden	sincos_lookup1
 
+	@ clang doesn't support ADRL.
+	@ Workaround based on that at https://bugs.llvm.org/show_bug.cgi?id=24350.
+	.macro ADRL reg:req, label:req
+	add \reg, pc, #((\label - .L_adrl_\@) & 0xff00)
+	add \reg, \reg, #((\label - .L_adrl_\@) - ((\label - .L_adrl_\@) & 0xff00))
+	.L_adrl_\@:
+	.endm
+
 mdct_unroll_prelap:
 	@ r0 = out
 	@ r1 = post
