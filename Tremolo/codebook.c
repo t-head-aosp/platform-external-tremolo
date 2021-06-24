@@ -476,6 +476,7 @@ int vorbis_book_unpack(oggpack_buffer *opb,codebook *s){
       for(i=0;i<s->entries;){
         long num=oggpack_read(opb,_ilog(s->entries-i));
         if(num<0)goto _eofout;
+        if(length>32) goto _errout;
         for(j=0;j<num && i<s->entries;j++,i++)
           lengthlist[i]=(char)length;
         s->dec_maxlength=length;
@@ -873,8 +874,11 @@ long vorbis_book_decodev_add(codebook *book,ogg_int32_t *a,
     if (!v) return -1;
     for(i=0;i<n;){
       if(decode_map(book,b,v,point))return -1;
-      for (j=0;j<book->dim && i < n;j++)
-        a[i++]+=v[j];
+      for (j=0;j<book->dim && i < n;j++,i++){
+        if (__builtin_add_overflow(a[i], v[j], &a[i])) {
+           a[i] = v[j] > 0 ? INT32_MAX : INT32_MIN;
+        }
+      }
     }
   }
   return 0;
